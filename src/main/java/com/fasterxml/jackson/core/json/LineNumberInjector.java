@@ -12,11 +12,18 @@ public class LineNumberInjector extends InjectableValues {
     public Object findInjectableValue(Object valueId, DeserializationContext ctxt, BeanProperty forProperty, Object beanInstance) throws
     JsonMappingException {
         if(valueId.equals("linenumber")){
-            if(((YAMLParser)ctxt.getParser()).getParsingContext()._child==null){
-                return 1;//top level
+            if(ctxt.getParser().getParsingContext() instanceof JsonReadContext readContext){
+
+                if(readContext._child==null){
+                    return 1;//top level
+                }
+
+                int lineNumber = readContext._child._lineNr+1;//0 based?
+
+                return lineNumber;
             }
-            int lineNumber = ((YAMLParser)ctxt.getParser()).getParsingContext()._child._lineNr+1;//0 based?
-            return lineNumber;
+            //streaming context?
+            return -1;
         }
         return null;
     }
